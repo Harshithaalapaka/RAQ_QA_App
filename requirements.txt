@@ -1,0 +1,14 @@
+langchain#library or framework
+langchain-core#package
+langchain-community
+PyPDF2
+numpy
+pandas
+openai
+langchain-openai
+#PyMuPDF
+#sentence-transformers
+#faiss-cpu
+chromadb
+python-dotenv
+#langchain_groq
