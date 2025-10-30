@@ -17,9 +17,10 @@ llm=ChatGroq(groq_api_key=groq_api_key,model_name="gemma2-9b-it",temperature=0.1
     answer:\"""
     response=llm.invoke([prompt.format(context=context,query=query)])
     return response.content"""
+#The variable client refers to your LLM API client — that is, the object that actually sends your prompt to the model and returns the response.
 from rag_retriever import RAGretriever
 
-def rag_advanced(self, query:str, retriever:RAGretriever, top_k=5, min_score=0.2, return_context=False):
+def rag_advanced( client,query:str, retriever:RAGretriever, top_k=5, min_score=0.2, return_context=False):
     """Full RAG pipeline: retrieval + LLM answer generation (same as first version)."""
     
     # 1) Retrieve top documents based on similarity score
@@ -58,7 +59,7 @@ Question: {query}
 Answer:"""
 
     # 7) Generate answer using the LLM client
-    response = self.client.chat.completions.create(
+    response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=512,
