@@ -1,0 +1,277 @@
+dataloader.py:
+
+
+"""
+    Loads PDF, TXT, CSV, Excel, and JSON files from a folder
+    and returns a list of LangChain Document objects.
+    """
+    #Loops through every page of the PDF.
+
+#enumerate() gives both page index (i) and the page object (page).
+ #creating langchian document obj Adds that document to the list docs
+ CSV Files Pandas library to read data from a Comma Separated Values (CSV) file and load it into a Pandas DataFrame ----
+            elif ext == "csv":
+                df = pd.read_csv(file_path)
+                #Converts that DataFrame into a plain text format (like a table).Useful because the vector store works with text.
+             #   Wraps the converted CSV text into a LangChain Document and stores it.
+                text = df.to_string()
+"""Returns the final list of all Document objects created.
+
+Each Document is a dict that has:
+
+page_content: text
+
+metadata: info like filename, page number, etc.
+ load() is needed to read the JSON file (turn text → Python).
+
+             dumps() is needed to convert it back into a neat text string for LangChain, which only understands text documents.
+             here f is file obj and json.load() = “Load JSON file → Convert to Python object”(dict)
+               Opens your .json file in read mode ("r") using UTF-8 encoding (so all characters are handled properly).
+                   indent=2 means 2 spaces of indentation per level.(line)
+                   So json.dumps() = “Dump (convert) Python object → JSON text string”
+                   
+                   dict = Python’s internal data structure (used inside your code).
+                  JSON = Text format for storing or transferring that data outside your code.
+                jSON = string version of a dictionary (following strict syntax rules).
+                Each format requires a different library to read it correctly.
+
+           A PDF’s text is on pages.
+
+            A CSV’s text is in cells.
+
+             A JSON’s text is in nested keys.
+
+             A TXT’s text is already plain"""
+
+
+
+
+embediings:
+
+
+"""  __init__ is a special method in Python.
+
+It runs automatically when you create an object of this class.
+
+model_name: str = "all-MiniLM-L6-V2" means:
+"all-MiniLM-L6-V2" is a pre-trained model available in the sentence-transformers library.
+
+You can pass a model name when creating the object.
+
+If you don’t, it will use "all-MiniLM-L6-V2" by default.
+self.model → creates an attribute to hold the actual model once it’s loaded.
+
+None means “there is no model yet.”
+Calls the internal method _load_model() to actually load the embedding model.
+After this line runs, self.model will contain the pre-trained embedding model ready to generate embeddings."""
+
+
+
+ragpipeline:
+
+"""The OpenAI client sends your prompt to the server and gets back a structured Python object (a response dictionary)
+response.choices → list of all model outputs (usually only one).
+
+response.choices[0] → the first item in that list.
+
+response.choices[0].message → the message object containing role and content.
+
+response.choices[0].message.content → the actual text answer from the model."""
+
+def rag_simple(query,retriever,llm,top_k=3):
+    results=retriever.retrieve(query,top_k=top_k)
+    context:"\n\n".join([doc['content'] for doc in results]) if results else ""
+    #Build a prompt using context + query.
+    if not context: 
+        return "no relevant context found to answer the question"
+    prompt=\"""use the following context to answer question concisely
+    context:{context}
+    question:{query}
+    answer:\"""
+    response=llm.invoke([prompt.format(context=context,query=query)])
+    return response.content"""
+
+
+textsplitter:
+
+   #split_documents method  belongs to the text_splitter object i.e., it is a inbuilt_method of RCTS cls from lanchain.
+        #so when we creating obj of rcts cls we are inheriting the methods of that cls into obj
+        """
+       Why your function(split_documents) is useful
+
+Handles raw text strings automatically (so you don’t have to manually convert to Document objects).
+
+Sets default chunking rules (chunk size, overlap, separators) in one place.
+
+Returns ready-to-use chunks for your RAG pipeline.
+        """
+    '''if chunks:
+               print(f"\n example chunk:")
+               print(f"content:{chunks[0].page_content[:200]}...")
+               print(f"metadata:{chunks[0].metadata}")'''
+
+
+vectorstore:
+"""By default, ChromaDB uses cosine distance.
+    it finds vectors with the lowest cosine distance to your query vector.
+
+However, note that:
+
+Cosine distance = 1 - cosine similarity
+distances — lower = more similar.
+Because most vector databases (including Chroma, FAISS, Milvus, etc.) internally treat "smaller = better" when searching nearest neighbors.
+
+So instead of maximizing similarity, they minimize distance."""
+"""What kind of “database mode” is used here?
+
+You are using Local Vector Database — specifically ChromaDB.
+
+Let’s break it down clearly:
+
+🔹 Type:
+
+✅ Local Vector Store (not API-based)
+
+You are not sending embeddings or data to any online database.
+Everything (embeddings, metadata, vectors) is stored locally on your disk inside the folder
+self.client = chromadb.PersistentClient(path=self.persist_directory)
+chromadb.PersistentClient → means ChromaDB will store data on your local machine.
+
+It automatically creates a folder structure that contains your vector embeddings and metadata files.
+
+These files persist even if you close and reopen your program
+Local (ChromaDB PersistentClient)	API-based (like Pinecone, Weaviate Cloud)
+Storage	On your computer (e.g., ../data/vector_store/)	On remote cloud servers(to be paid based on usage)
+.
+so our current setup=local offline vector database+
+online llm(groq api)
+
+Local Embedding Model + Local Vector Store (ChromaDB) + Cloud LLM (Groq)
+Your embedding model is local, not API-based — unless you explicitly replaced it with something like OpenAIEmbeddings or HuggingFaceEmbeddings from LangChain.
+You are using a local embedding model (like sentence-transformers/all-MiniLM-L6-v2)
+✅ Stored in local ChromaDB
+✅ Queried by local retriever
+✅ Answer generated by Groq API LLM
+
+Your embedding model is local, not API-based — unless you explicitly replaced it with something like OpenAIEmbeddings or HuggingFaceEmbeddings from LangChain.
+
+if api based means:
+from langchain.embeddings import OpenAIEmbeddings
+
+class Embeddingmanager:
+    def __init__(self):
+        self.model = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    def generate_embeddings(self, texts):
+        return self.model.embed_documents(texts)
+
+you are using an API-based embedding model, hosted by OpenAI (or another provider).
+
+🔸 Meaning:
+
+Requires an API key (e.g., OPENAI_API_KEY)
+
+Needs internet.
+
+Your data (text chunks) are sent to the provider’s server to generate embeddings.
+
+So this mode =
+
+🌐 API Embedding Model + Local Vector Store (ChromaDB) + Cloud LLM (Groq)
+
+
+"""
+
+
+app:
+
+
+"""here we are importing clsnames so that we can create objs when ever we needed
+
+Imports load_dotenv() which reads environment variables from a .env file and loads the variables inside it into the system environment. so secrets like API keys stay out of code.
+"""
+""Creates a connection to OpenAI’s API using your secret key.
+
+client → This object lets you send requests to OpenAI (for embeddings, text completion, etc.).
+each openai mode has a fixed context window(max no of tokens(1 token=4 chars) it can handle(input+output))"""
+"""to check context window(model's token limit)
+model_info=client.models.retrieve("modelname")
+print(model_info)
+
+"""
+
+"""texts = [chunk.page_content for chunk in chunks]
+Creates a list of only text strings (not document objects).
+Each chunk.page_content extracts the text from each chunk.
+
+python
+Copy code
+embeddings = embed_manager.generate_embeddings(texts)
+Sends the list of texts to OpenAI’s embedding model.
+
+Returns a NumPy array of vector embeddings.
+
+Each embedding represents a text’s meaning numerically.
+add_documents() stores both the chunks and their embeddings.
+
+This lets you perform similarity search later when a user asks a question
+The retriever uses:
+
+vstore → to find the most relevant chunks.
+
+embed_manager → to embed the user’s query for comparison."""
+"""Converts your question into embeddings.
+
+Retrieves the top 3 most similar chunks (top_k=3).
+
+Filters out chunks below a similarity threshold (min_score=0.1).
+
+Combines those chunks and passes them to an LLM (via OpenAI) to generate a final answer.
+
+If return_context=True, it also returns the text passages used to answer."""
+
+
+
+fastapi:
+
+"""
+  
+  main.py (your FastAPI backend)
+
+This runs the RAG pipeline and returns a JSON result.
+
+ test_api.py (your client/test script)
+
+This sends a request to the backend and prints what comes back.
+
+
+
+  def ask_question(request: QueryRequest):
+    
+    When a POST request is made to /ask, this function runs.
+    It takes the user's query, runs the RAG pipeline, and returns the answer.
+    
+    try:
+        # Call your RAG pipeline with the user's question
+        result = rag_advanced(request.query, retriever)
+
+        # Return the full result (FastAPI automatically converts it to JSON)
+        return result
+
+    except Exception as e:
+        # If something goes wrong, return an error response
+        return {"answer": f"Error: {str(e)}", "confidence": 0.0, "sources": []}"""
+
+
+
+
+testapi:
+"""requests.get("https://google.com")
+
+/ask is the endpoint you created in FastAPI
+
+You’re sending an HTTP POST request to your API using the requests library.
+
+url → where to send it (http://127.0.0.1:8000/ask)
+fetches Google’s webpage.
+Send a request to my FastAPI app running locally on port 8000, at the /ask endpoint.”"""
