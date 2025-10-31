@@ -1,5 +1,8 @@
-langchain#library or framework
-langchain-core#package
+#the _pycache_ folder is created by pyhton when u run a script.it contains .pyc files which are the complied versions
+#of ur python scripts.these files are in a format called bytecode,which python can execute faster than the original source code 
+
+langchain    #library or framework
+langchain-core    #package
 langchain-community
 PyPDF2
 numpy
@@ -11,4 +14,6 @@ langchain-openai
 #faiss-cpu
 chromadb
 python-dotenv
+fastapi
+uvicorn
 #langchain_groq

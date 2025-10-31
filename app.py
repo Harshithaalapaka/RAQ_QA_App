@@ -78,7 +78,7 @@ while True:
         print("Goodbye!")
         break
 
-    result = rag_advanced(query, retriever, top_k=3, min_score=0.1, return_context=True)
+    result = rag_advanced(client,query, retriever, top_k=3, min_score=0.1, return_context=True)
     """Converts your question into embeddings.
 
 Retrieves the top 3 most similar chunks (top_k=3).
