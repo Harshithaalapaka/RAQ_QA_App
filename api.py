@@ -17,15 +17,15 @@ load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=openai_api_key)
-# Step 1: Load documents
+# Load documents
 docs = load_documents("data/pdf")
 
-# Step 2: Split into chunks
+# Split into chunks
 chunks = split_documents(docs)
 embedding_manager = Embeddingmanager()
 vector_store = Vectorstore()
 
-# 2️⃣ Initialize retriever with dependencies
+# Initialize retriever with dependencies
 retriever = RAGretriever(vector_store=vector_store, embedding_manager=embedding_manager)
 
 #creating fastapi app and it is the main server

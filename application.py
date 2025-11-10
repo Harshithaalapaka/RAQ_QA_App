@@ -31,47 +31,29 @@ print(model_info)
 
 
 
-# Step 1: Load documents
+# Load documents
 docs = load_documents("data/pdf")
 
-# Step 2: Split into chunks
+# Split into chunks
 chunks = split_documents(docs)
 
-"""texts = [chunk.page_content for chunk in chunks]
-Creates a list of only text strings (not document objects).
-Each chunk.page_content extracts the text from each chunk.
 
-python
-Copy code
-embeddings = embed_manager.generate_embeddings(texts)
-Sends the list of texts to OpenAI’s embedding model.
 
-Returns a NumPy array of vector embeddings.
 
-Each embedding represents a text’s meaning numerically.
-add_documents() stores both the chunks and their embeddings.
-
-This lets you perform similarity search later when a user asks a question
-The retriever uses:
-
-vstore → to find the most relevant chunks.
-
-embed_manager → to embed the user’s query for comparison."""
-
-# Step 3: Generate embeddings
+#  Generate embeddings
 embed_manager = Embeddingmanager()
 #texts should be a list of strings OpenAI accepts a list .OpenAI’s embedding endpoint expects a list of strings.
 texts = [chunk.page_content for chunk in chunks]
 embeddings = embed_manager.generate_embeddings(texts)
 
-# Step 4: Store embeddings
+# Store embeddings
 vstore = Vectorstore()
 vstore.add_documents(chunks, embeddings)
 
-# Step 5: Create retriever
+#  Create retriever
 retriever = RAGretriever(vstore, embed_manager)
 
-# Step 6: Interactive query
+#  Interactive query
 while True:
     query = input("\nAsk a question (or type 'exit' to quit): ")
     if query.lower() in ["exit", "quit"]:
