@@ -4,5 +4,5 @@ embeddingsopenaimodel.py
 __pycache__
 myenv
 notes.docx
-application
-api
+application.py
+api.py
