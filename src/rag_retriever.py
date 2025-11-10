@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
-from vector_store import Vectorstore
-from embeddingsopenaimodel import Embeddingmanager
+from src.vector_store import Vectorstore
+from src.embeddings import Embeddingmanager
 class RAGretriever:
     def __init__(self, vector_store: Vectorstore, embedding_manager: Embeddingmanager):
         self.vector_store = vector_store
@@ -35,7 +35,7 @@ class RAGretriever:
                             'id': doc_id,
                             'content': document,
                             'metadata': metadata,
-                            'similarityscore': similarity_score,
+                            'similarity_score': similarity_score,
                             'distance': distance,
                             'rank': i + 1
                         })

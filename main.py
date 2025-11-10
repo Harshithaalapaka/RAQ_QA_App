@@ -1,0 +1,71 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from src.data_loader import load_documents
+from src.text_splitter import split_documents
+from src.rag_pipeline import rag_advanced
+from src.rag_retriever import RAGretriever
+from src.vector_store import Vectorstore
+from src.embeddings import Embeddingmanager
+from openai import OpenAI
+from dotenv import load_dotenv
+from groq import Groq
+import os
+load_dotenv()
+
+groq_api_key = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=groq_api_key)
+
+# ================================
+# 1️⃣ Load Environment Variables
+# ================================
+# ================================
+# 2️⃣ Initialize Embeddings + Store
+# ================================
+embedding_manager = Embeddingmanager()
+vector_store = Vectorstore()  # Persistent store
+
+# ================================
+# 3️⃣ Load and Add Documents (Only if Empty)
+# ================================
+if vector_store.collection.count() == 0:
+    print("Vectorstore empty — loading and embedding documents...")
+    docs = load_documents("data/pdf")
+    chunks = split_documents(docs)
+    texts = [chunk.page_content for chunk in chunks]
+    embeddings = embedding_manager.generate_embeddings(texts)
+    vector_store.add_documents(chunks, embeddings)
+else:
+    print(f"Vectorstore already has {vector_store.collection.count()} documents. Skipping load.")
+
+# ================================
+# 4️⃣ Create Retriever
+# ================================
+retriever = RAGretriever(vector_store=vector_store, embedding_manager=embedding_manager)
+
+# ================================
+# 5️⃣ Create FastAPI App
+# ================================
+app = FastAPI(title="RAG QA SYSTEM")
+
+# Request/Response Models
+class QueryRequest(BaseModel):
+    query: str
+
+class QueryResponse(BaseModel):
+    answer: str
+    confidence: float
+    sources: list
+
+# ================================
+# 6️⃣ API Endpoint
+# ================================
+@app.post("/ask", response_model=QueryResponse)
+async def ask_question(request: QueryRequest):
+    result = rag_advanced(client, request.query, retriever=retriever)
+    return {
+        "answer": result.get("answer", "No answer found"),
+        "confidence": result.get("confidence", 0.0),
+        "sources": result.get("sources", []),
+    }
+
+

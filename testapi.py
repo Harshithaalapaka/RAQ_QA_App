@@ -9,20 +9,21 @@ while True:
     payload = {"query": query}
 
  #data you want to send to the API
-response=requests.post(url,json=payload)
+    response=requests.post(url,json=payload)
+    print(response.status_code)
  # Convert server response to Python dictionary
-result = response.json()
-# 💡 Print neatly formatted output
-print("\n===============================")
+    result = response.json()
+# Print neatly formatted output
+    print("\n===============================")
 #Try to get the "answer" key from the dictionary.
 
 #If it doesn’t exist (for example, if there was an error), print 'No answer found'.
-print(f"Answer: {result.get('answer', 'No answer found')}")
-print(f"Confidence: {result.get('confidence', 'N/A')}")
+    print(f"Answer: {result.get('answer', 'No answer found')}")
+    print(f"Confidence: {result.get('confidence', 'N/A')}")
     
     # Print each source if available
-sources = result.get("sources", [])
-if sources:
+    sources = result.get("sources", [])
+    if sources:
         print("\nSources:")
         """ Loops through each dictionary inside the sources list.
 
@@ -33,13 +34,4 @@ The file name ('source')
 The similarity score ('score')"""
         for src in sources:
             print(f" {src.get('source', 'unknown')} (score: {src.get('score', 'N/A')})")
-print("===============================\n")
-"""requests.get("https://google.com")
-
-/ask is the endpoint you created in FastAPI
-
-You’re sending an HTTP POST request to your API using the requests library.
-
-url → where to send it (http://127.0.0.1:8000/ask)
-fetches Google’s webpage.
-Send a request to my FastAPI app running locally on port 8000, at the /ask endpoint.”"""
+    print("===============================\n")
