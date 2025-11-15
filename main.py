@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from src.data_loader import load_documents
 from src.text_splitter import split_documents
@@ -33,6 +34,13 @@ retriever = RAGretriever(vector_store=vector_store, embedding_manager=embedding_
 
 
 app = FastAPI(title="RAG QA SYSTEM")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Request/Response Models
 class QueryRequest(BaseModel):
