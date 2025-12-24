@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware#Allows frontend (HTML/JS) to call backend
+from pydantic import BaseModel#Used to define request & response formats ensures data validation
 from src.data_loader import load_documents
 from src.text_splitter import split_documents
 from src.rag_pipeline import rag_advanced
