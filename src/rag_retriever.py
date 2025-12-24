@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 from src.vector_store import Vectorstore
 from src.embeddings import Embeddingmanager
 class RAGretriever:
-    def __init__(self, vector_store: Vectorstore, embedding_manager: Embeddingmanager):
+    def __init__(self, vector_store: Vectorstore, embedding_manager: Embeddingmanager):#it runs automatically  when an object is created and it is used to setup ths cls
         self.vector_store = vector_store
         self.embedding_manager = embedding_manager
 
