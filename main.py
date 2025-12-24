@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware#Allows frontend (HTML/JS) to call backend
+from fastapi.middleware.cors import CORSMiddleware#Allows frontend (HTML/JS) to call backend,avoids cors errorsin the browser,Browser blocks frontend → backend calls by default.✔ This allows:HTML / JSReactAny frontend
 from pydantic import BaseModel#Used to define request & response formats ensures data validation
 from src.data_loader import load_documents
 from src.text_splitter import split_documents
